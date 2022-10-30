@@ -4,9 +4,13 @@ Write-Information "Setting up the workflow"
 Get-ChildItem -Path .\Setup -Filter "*.ps1" | ForEach-Object { . $_.FullName }
 
 Write-Information "Downloading Lists"
-Get-ChildItem -Path .\Lists -Filter "*.ps1" | ForEach-Object { . $_.FullName }
+Get-ChildItem -Path .\Urls -Filter "*.ps1" | ForEach-Object { . $_.FullName }
 
 Write-Information "Commit changes"
+$toadd = (get-childitem -path "." -Filter "list*.txt").FullName
+foreach ($file in $toadd) {
+    Move-Item $file .\Lists\
+}
 $toadd = (get-childitem -path "." -Filter "list*.txt").FullName
 foreach ($file in $toadd) {
     git add $file
