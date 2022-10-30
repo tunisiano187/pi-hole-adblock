@@ -10,7 +10,6 @@ Write-Information "Commit changes"
 $toadd = (get-childitem -path "." -Filter "list*.txt").FullName
 foreach ($file in $toadd) {
     Move-Item $file .\Lists\ -Force
-    Remove-Item $file -Force
 }
 $toadd = (get-childitem -path "." -Filter "list*.txt").FullName
 foreach ($file in $toadd) {
