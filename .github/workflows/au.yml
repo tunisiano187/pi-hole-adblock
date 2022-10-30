@@ -6,6 +6,11 @@ on:
       master
   schedule:
     - cron:  '4 6 * * *'
+  workflow_dispatch: # Enable manual trigger
+    inputs:
+      forced_packages:
+        description: Reason to run it manually
+        required: false
 
 jobs:
   auto_update:
