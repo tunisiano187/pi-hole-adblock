@@ -1,5 +1,5 @@
 ﻿$url=@{
-    ads="https://raw.githubusercontent.com/KitsapCreator/pihole-blocklists/master/ads.txt"
-    "gamming-scam" = "https://raw.githubusercontent.com/KitsapCreator/pihole-blocklists/master/scam-spam.txt"
-    "scam-spam" = "https://raw.githubusercontent.com/KitsapCreator/pihole-blocklists/master/scam-spam.txt"
+    ads="https://blocklists.kitsapcreator.com/ads.txt"
+    "gamming-scam" = "https://blocklists.kitsapcreator.com/scam-spam.txt"
+    "scam-spam" = "https://blocklists.kitsapcreator.com/scam-spam.txt"
 }
