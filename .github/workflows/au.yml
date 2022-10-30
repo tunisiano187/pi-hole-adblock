@@ -34,7 +34,7 @@ jobs:
           git config --global core.safecrlf false
       - name: Install and configure PowerShellForGitHub
         run: |
-          Install-Module -Name PowerShellForGitHub
+          Install-Module -Name PowerShellForGitHub -Force
           $secureString = ${{ secrets.GITHUB_TOKEN }} | ConvertTo-SecureString -AsPlainText -Force
           $cred = New-Object System.Management.Automation.PSCredential "username is ignored", $secureString
           Set-GitHubAuthentication -Credential $cred
