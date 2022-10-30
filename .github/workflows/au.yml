@@ -42,7 +42,7 @@ jobs:
           Set-GitHubAuthentication -Credential $cred
           $secureString = $null # clear this out now that it's no longer needed
           $cred = $null # clear this out now that it's no longer needed
-      - name: Check update for packages
+      - name: Updating lists
         run: |
           $ErrorActionPreference = 'Continue'
           .\start.ps1
