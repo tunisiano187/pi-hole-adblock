@@ -35,4 +35,4 @@ jobs:
       - name: Check update for packages
         run: |
           $ErrorActionPreference = 'Continue'
-          start.ps1
+          .\start.ps1
