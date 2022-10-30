@@ -1,4 +1,6 @@
-﻿Write-Information "Setting up the workflow"
+﻿$env:runningplace=$PSScriptRoot
+
+Write-Information "Setting up the workflow"
 Get-ChildItem -Path .\Setup -Filter "*.ps1" | ForEach-Object { . $_.FullName }
 
 Write-Information "Downloading Lists"
@@ -9,11 +11,10 @@ $toadd = (get-childitem -path "." -Filter "list*.txt").FullName
 foreach ($file in $toadd) {
     git add $file
 }
-git commit -m "[kip ci] add lists"
+git commit -m "[skip ci] add lists"
 
 Write-Information "Push if required"
 try {
-    git pull
     git push origin master
 } catch {
     write-output "nothing to push"
