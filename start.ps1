@@ -15,7 +15,7 @@ git commit -m "[skip ci] add lists"
 
 Write-Information "Push if required"
 try {
-    git push origin master
+    git push
 } catch {
     write-output "nothing to push"
 }
