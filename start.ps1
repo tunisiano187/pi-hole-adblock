@@ -10,6 +10,7 @@ Write-Information "Commit changes"
 $toadd = (get-childitem -path "." -Filter "list*.txt").FullName
 foreach ($file in $toadd) {
     Move-Item $file .\Lists\
+    Remove-Item $file -Force
 }
 $toadd = (get-childitem -path "." -Filter "list*.txt").FullName
 foreach ($file in $toadd) {
@@ -17,9 +18,7 @@ foreach ($file in $toadd) {
 }
 git commit -m "[skip ci] add lists"
 
-foreach ($file in $toadd) {
-    Get-Content $file | Sort-Object | get-unique | Set-Content .\Lists\all.txt
-}
+get-childitem -path "." -include list*.txt -Recurse | ForEach-Object {Get-Content $_; ""} | Sort-Object | get-unique | out-file .\Lists\all.txt
 git commit -m "[skip ci] add all.txt"
 
 Write-Information "Push if required"
