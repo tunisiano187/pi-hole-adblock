@@ -17,7 +17,7 @@ jobs:
     runs-on: windows-2019
     defaults:
       run:
-        shell: powershell
+        shell: pwsh
     steps:
       - uses: actions/checkout@v3
         with:
@@ -34,7 +34,7 @@ jobs:
           git config --global core.safecrlf false
       - name: Install and configure PowerShellForGitHub
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ github.token }}
           run: |
           Install-Module -Name PowerShellForGitHub -Force
           $secureString = $env:GITHUB_TOKEN | ConvertTo-SecureString -AsPlainText -Force
