@@ -1,0 +1,1 @@
+﻿Write-host "First test of the automation"

@@ -1,0 +1,33 @@
+﻿name: Auto Update
+
+on:
+  push:
+    branches:
+      master
+  schedule:
+    - cron:  '4 6 * * *'
+
+jobs:
+  auto_update:
+    runs-on: windows-2019
+    defaults:
+      run:
+        shell: powershell
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 100
+      - name: Check environment
+        run: |
+          Get-CimInstance win32_operatingsystem -Property Caption, OSArchitecture, Version | fl Caption, OSArchitecture, Version
+          $PSVersionTable
+          git --version
+      - name: Initialize Git config
+        run: |
+          git config --global user.email "helpdesk.choc@gmail.com"
+          git config --global user.name "Tunisiano187"
+          git config --global core.safecrlf false
+      - name: Check update for packages
+        run: |
+          $ErrorActionPreference = 'Continue'
+          start.ps1
