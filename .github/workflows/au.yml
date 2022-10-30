@@ -3,7 +3,7 @@
 on:
   push:
     branches:
-      master
+      main
   schedule:
     - cron:  '4 6 * * *'
   workflow_dispatch: # Enable manual trigger
