@@ -18,6 +18,7 @@ foreach ($file in $toadd) {
 git commit -m "[skip ci] add lists"
 
 get-childitem -path "." -include list*.txt -Recurse | ForEach-Object {Get-Content $_; ""} | Sort-Object | get-unique | out-file .\Lists\all.txt
+git add .\Lists\all.txt
 git commit -m "[skip ci] add all.txt"
 
 Write-Information "Push if required"

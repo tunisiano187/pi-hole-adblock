@@ -5,5 +5,5 @@ $out = "$env:runningplace\list_$scriptname.txt"
 
 Invoke-WebRequest -Uri $url -OutFile $working
 $content = Get-Content -Path $working
-($content | Where-Object {$_ -notmatch "!"}).replace('|','').replace('^','') | Set-Content -Path $out
+($content | Where-Object {$_ -notmatch "!"}).replace('|','').replace('^','') | Sort-Object | get-unique | Set-Content -Path $out
 
