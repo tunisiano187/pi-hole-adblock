@@ -9,7 +9,7 @@ $toadd = (get-childitem -path "." -Filter "list*.txt").FullName
 foreach ($file in $toadd) {
     git add $file
 }
-git commit -m "add lists"
+git commit -m "[kip ci] add lists"
 
 Write-Information "Push if required"
 try {
