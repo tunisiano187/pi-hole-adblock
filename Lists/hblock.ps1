@@ -1,7 +1,9 @@
 ﻿$url = "https://hblock.molinero.dev/hosts_adblock.txt"
-$working = "$env:runningplace\list_$($myInvocation.ScriptName).txt"
+$scriptname = "hblock"
+$working = "$env:temp\list_$scriptname.txt"
+$out = "$env:runningplace\list_$scriptname.txt"
 
-$content = (Invoke-WebRequest -Uri $url).content
-($content.Tostring().split('
-') | Where-Object {$_ -notmatch "!"}).replace('|','').replace('^','') | Set-Content -Path $working
+Invoke-WebRequest -Uri $url -OutFile $working
+$content = Get-Content -Path $working
+($content | Where-Object {$_ -notmatch "!"}).replace('|','').replace('^','') | Set-Content -Path $out
 
