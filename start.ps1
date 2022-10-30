@@ -9,7 +9,7 @@ Get-ChildItem -Path .\Urls -Filter "*.ps1" | ForEach-Object { . $_.FullName }
 Write-Information "Commit changes"
 $toadd = (get-childitem -path "." -Filter "list*.txt").FullName
 foreach ($file in $toadd) {
-    Move-Item $file .\Lists\
+    Move-Item $file .\Lists\ -Force
     Remove-Item $file -Force
 }
 $toadd = (get-childitem -path "." -Filter "list*.txt").FullName
