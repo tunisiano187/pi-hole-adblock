@@ -17,6 +17,11 @@ foreach ($file in $toadd) {
 }
 git commit -m "[skip ci] add lists"
 
+foreach ($file in $toadd) {
+    Get-Content $file | Sort-Object | get-unique | Set-Content .\Lists\all.txt
+}
+git commit -m "[skip ci] add all.txt"
+
 Write-Information "Push if required"
 try {
     git push
