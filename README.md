@@ -8,3 +8,7 @@ That list will be updated automatically and you will be able to add it to your o
 We will use other lists and merge them, and add exceptions.
 
 The exceptions will create their own lists to be able to choose if you want them or not.
+
+## Current lists imported
+- [HBlock](https://hblock.molinero.dev)
+- [KitsapCreator](https://github.com/KitsapCreator/pihole-blocklists)
