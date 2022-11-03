@@ -15,11 +15,11 @@ $toadd = (get-childitem -path "." -Filter "list*.txt").FullName
 foreach ($file in $toadd) {
     git add $file
 }
-git commit -m "[skip ci] add lists"
+git commit -m "[skip ci] update lists"
 
 get-childitem -path "." -include list*.txt -Recurse | ForEach-Object {Get-Content $_; ""} | Sort-Object | get-unique | out-file .\Lists\all.txt
 git add .\Lists\all.txt
-git commit -m "[skip ci] add all.txt"
+git commit -m "[skip ci] update all.txt"
 
 Write-Information "Push if required"
 try {
