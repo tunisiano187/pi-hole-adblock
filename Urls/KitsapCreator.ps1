@@ -6,8 +6,8 @@ $urls = @{
 
 foreach ($name in $urls.Keys) {
     $url = $urls[$name]
-    $working = "$env:temp\list_${scriptname}_$name.txt"
-    $out = "$env:runningplace\list_${scriptname}_$name.txt"
+    $working = Join-Path ([System.IO.Path]::GetTempPath()) "list_${scriptname}_$name.txt"
+    $out = Join-Path $env:runningplace "list_${scriptname}_$name.txt"
 
     try {
         Invoke-WebRequest -Uri $url -OutFile $working -ErrorAction Stop
