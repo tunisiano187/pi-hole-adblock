@@ -14,7 +14,7 @@ on:
 
 jobs:
   auto_update:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     defaults:
       run:
         shell: pwsh
@@ -24,7 +24,6 @@ jobs:
           fetch-depth: 100
       - name: Check environment
         run: |
-          Get-CimInstance win32_operatingsystem -Property Caption, OSArchitecture, Version | fl Caption, OSArchitecture, Version
           $PSVersionTable
           git --version
       - name: Initialize Git config
