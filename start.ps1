@@ -17,7 +17,7 @@ foreach ($file in $toadd) {
 }
 git commit -m "[skip ci] update lists"
 
-get-childitem -path "." -include list*.txt -Recurse | ForEach-Object {Get-Content $_; ""} | Sort-Object | get-unique | out-file .\Lists\all.txt
+get-childitem -path "." -include list*.txt -Recurse | ForEach-Object {Get-Content $_; ""} | Where-Object { $_.Trim() -ne "" } | ForEach-Object { $_.ToLowerInvariant() } | Sort-Object -Unique | out-file .\Lists\all.txt
 git add .\Lists\all.txt
 git commit -m "[skip ci] update all.txt"
 
