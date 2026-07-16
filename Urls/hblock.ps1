@@ -1,7 +1,7 @@
 ﻿$url = "https://hblock.molinero.dev/hosts_adblock.txt"
 $scriptname = "hblock"
-$working = "$env:temp\list_$scriptname.txt"
-$out = "$env:runningplace\list_$scriptname.txt"
+$working = Join-Path ([System.IO.Path]::GetTempPath()) "list_$scriptname.txt"
+$out = Join-Path $env:runningplace "list_$scriptname.txt"
 
 try {
     Invoke-WebRequest -Uri $url -OutFile $working -ErrorAction Stop
