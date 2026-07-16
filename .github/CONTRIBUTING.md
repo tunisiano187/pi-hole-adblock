@@ -2,8 +2,9 @@
 
 1. [Getting Involved](#getting-involved)
 2. [How To Report Bugs](#how-to-report-bugs)
-3. [Reporting a Malicious URL](#reporting-a-malicious-url)
-4. [Tips For Submitting Code](#tips-for-submitting-code)
+3. [Requesting an Exclusion](#requesting-an-exclusion)
+4. [Reporting a Malicious URL](#reporting-a-malicious-url)
+5. [Tips For Submitting Code](#tips-for-submitting-code)
 
 ## Getting Involved
 
@@ -43,6 +44,16 @@ Please follow these guidelines before reporting a bug:
 3. **Provide a means to reproduce the problem** Please provide as much details as possible, and of course the steps to reproduce the problem.
 
 4. If the above steps are OK and you are sure its a bug, issues are tracked in the [issue tracker](https://github.com/tunisiano187/pi-hole-adblock/issues).
+
+## Requesting an Exclusion
+
+If the merged list blocks something you rely on and it's a false positive, open an
+[Exclusion request](https://github.com/tunisiano187/pi-hole-adblock/issues/new?template=exclusion_request.yml)
+issue with the domain and why it should be excluded.
+
+A workflow automatically checks for duplicates, looks up the domain's reputation, and opens a pull
+request adding it to `Lists/exclusions.txt` for a maintainer to review — you don't need to touch any
+files or open a pull request yourself.
 
 ## Reporting a Malicious URL
 
