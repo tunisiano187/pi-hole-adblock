@@ -1,0 +1,169 @@
+name: Malicious URL Report
+
+on:
+  issues:
+    types: [opened]
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+jobs:
+  process:
+    if: contains(github.event.issue.labels.*.name, 'malicious-report')
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - uses: actions/checkout@v4
+
+      # Untrusted issue content is passed through an env var rather than
+      # interpolated directly into the script, and is never used until it
+      # has been reduced to a strict domain-only regex match below.
+      - name: Extract and validate domain
+        id: extract
+        env:
+          ISSUE_BODY: ${{ github.event.issue.body }}
+        run: |
+          $body = $env:ISSUE_BODY
+          $domain = $null
+
+          if ($body -match '(?ms)###\s*Malicious domain or URL\s*\r?\n+(?<value>.+?)(\r?\n){2,}###') {
+              $domain = ($matches['value'] -split '\r?\n')[0].Trim()
+          } elseif ($body -match '(?ms)###\s*Malicious domain or URL\s*\r?\n+(?<value>.+)$') {
+              $domain = ($matches['value'] -split '\r?\n')[0].Trim()
+          }
+
+          if ($domain) {
+              $domain = $domain -replace '^[a-zA-Z]+://', ''
+              $domain = ($domain -split '[/\s]')[0].ToLowerInvariant()
+          }
+
+          $isValid = [bool]$domain -and ($domain -match '^[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?(\.[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?)+$')
+
+          if ($isValid) {
+              "valid=true" >> $env:GITHUB_OUTPUT
+              "domain=$domain" >> $env:GITHUB_OUTPUT
+          } else {
+              "valid=false" >> $env:GITHUB_OUTPUT
+          }
+
+      - name: Comment on unparseable domain
+        if: steps.extract.outputs.valid != 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE: ${{ github.event.issue.number }}
+        run: |
+          gh issue comment "$env:ISSUE" --body "I couldn't find a valid domain in this issue. Please edit it so the *Malicious domain or URL* field contains a single domain, e.g. evil-example.com."
+
+      - name: Check if already blocked
+        id: dup
+        if: steps.extract.outputs.valid == 'true'
+        env:
+          DOMAIN: ${{ steps.extract.outputs.domain }}
+        run: |
+          $existing = @()
+          if (Test-Path ./Lists/all.txt) {
+              $existing = Get-Content ./Lists/all.txt
+          }
+          if ($existing -contains $env:DOMAIN) {
+              "duplicate=true" >> $env:GITHUB_OUTPUT
+          } else {
+              "duplicate=false" >> $env:GITHUB_OUTPUT
+          }
+
+      - name: Comment and close if already blocked
+        if: steps.extract.outputs.valid == 'true' && steps.dup.outputs.duplicate == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE: ${{ github.event.issue.number }}
+          DOMAIN: ${{ steps.extract.outputs.domain }}
+        run: |
+          gh issue comment "$env:ISSUE" --body "$env:DOMAIN is already blocked in Lists/all.txt. Thanks for double-checking - closing as a duplicate."
+          gh issue close "$env:ISSUE" --reason "not planned"
+
+      - name: Query VirusTotal
+        id: vt
+        if: steps.extract.outputs.valid == 'true' && steps.dup.outputs.duplicate == 'false'
+        env:
+          VT_API_KEY: ${{ secrets.VT_API_KEY }}
+          DOMAIN: ${{ steps.extract.outputs.domain }}
+        run: |
+          if ([string]::IsNullOrEmpty($env:VT_API_KEY)) {
+              "summary=VirusTotal check skipped: no VT_API_KEY secret configured on this repository." >> $env:GITHUB_OUTPUT
+              exit 0
+          }
+
+          try {
+              $resp = Invoke-RestMethod -Uri "https://www.virustotal.com/api/v3/domains/$env:DOMAIN" -Headers @{ "x-apikey" = $env:VT_API_KEY } -ErrorAction Stop
+              $s = $resp.data.attributes.last_analysis_stats
+              $total = $s.malicious + $s.suspicious + $s.harmless + $s.undetected + $s.timeout
+              $summary = "VirusTotal: $($s.malicious) malicious / $($s.suspicious) suspicious / $($s.harmless) harmless / $($s.undetected) undetected (of $total engines) - full report: https://www.virustotal.com/gui/domain/$env:DOMAIN"
+          } catch {
+              $summary = "VirusTotal check failed: $($_.Exception.Message)"
+          }
+
+          $summary = $summary -replace '\r?\n', ' '
+          "summary=$summary" >> $env:GITHUB_OUTPUT
+
+      - name: Create branch, commit and open pull request
+        if: steps.extract.outputs.valid == 'true' && steps.dup.outputs.duplicate == 'false'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE_BODY: ${{ github.event.issue.body }}
+          ISSUE: ${{ github.event.issue.number }}
+          DOMAIN: ${{ steps.extract.outputs.domain }}
+          VT_SUMMARY: ${{ steps.vt.outputs.summary }}
+        run: |
+          function Get-FormField {
+              param([string]$Body, [string]$Label)
+              $escaped = [regex]::Escape($Label)
+              if ($Body -match "(?ms)###\s*$escaped\s*\r?\n+(?<value>.+?)(\r?\n){2,}###") {
+                  return $matches['value'].Trim()
+              } elseif ($Body -match "(?ms)###\s*$escaped\s*\r?\n+(?<value>.+)$") {
+                  return $matches['value'].Trim()
+              }
+              return ""
+          }
+
+          $encountered = Get-FormField -Body $env:ISSUE_BODY -Label "Where/how did you encounter it?"
+          $evidence = Get-FormField -Body $env:ISSUE_BODY -Label "Evidence"
+          if ([string]::IsNullOrWhiteSpace($evidence) -or $evidence -match '^_No response_$') { $evidence = "_none provided_" }
+          if ([string]::IsNullOrWhiteSpace($encountered) -or $encountered -match '^_No response_$') { $encountered = "_none provided_" }
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          $branch = "malicious/$env:DOMAIN-issue-$env:ISSUE"
+          git checkout -b $branch
+
+          if (-not (Test-Path ./Lists/list_community_reported.txt)) {
+              New-Item -ItemType File -Path ./Lists/list_community_reported.txt | Out-Null
+          }
+          Add-Content -Path ./Lists/list_community_reported.txt -Value $env:DOMAIN
+          $unique = Get-Content ./Lists/list_community_reported.txt | Where-Object { $_.Trim() -ne "" } | Sort-Object -Unique
+          Set-Content -Path ./Lists/list_community_reported.txt -Value $unique
+
+          git add ./Lists/list_community_reported.txt
+          git commit -m "Add $env:DOMAIN to community-reported list (#$env:ISSUE)"
+          git push -u origin $branch
+
+          $prBody = @"
+          Closes #$env:ISSUE
+
+          Reported via the malicious-report issue form.
+
+          $env:VT_SUMMARY
+
+          **Where/how it was encountered:**
+          $encountered
+
+          **Evidence:**
+          $evidence
+
+          Please review before merging - this adds $env:DOMAIN to the blocklist for everyone using this project's merged list.
+          "@
+          Set-Content -Path pr-body.md -Value $prBody
+          gh pr create --title "Block $env:DOMAIN" --body-file pr-body.md --base main --head $branch --label malicious-report

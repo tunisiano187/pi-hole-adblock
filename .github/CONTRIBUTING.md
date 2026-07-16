@@ -3,7 +3,8 @@
 1. [Getting Involved](#getting-involved)
 2. [How To Report Bugs](#how-to-report-bugs)
 3. [Requesting an Exclusion](#requesting-an-exclusion)
-4. [Tips For Submitting Code](#tips-for-submitting-code)
+4. [Reporting a Malicious URL](#reporting-a-malicious-url)
+5. [Tips For Submitting Code](#tips-for-submitting-code)
 
 ## Getting Involved
 
@@ -53,6 +54,16 @@ issue with the domain and why it should be excluded.
 A workflow automatically checks for duplicates, looks up the domain's reputation, and opens a pull
 request adding it to `Lists/exclusions.txt` for a maintainer to review — you don't need to touch any
 files or open a pull request yourself.
+
+## Reporting a Malicious URL
+
+Found a domain serving malware, phishing, or a scam that isn't blocked yet? Open a
+[Malicious URL report](https://github.com/tunisiano187/pi-hole-adblock/issues/new?template=malicious_report.yml)
+issue with the domain, where you encountered it, and any supporting evidence.
+
+A workflow automatically checks whether it's already blocked, looks up its reputation, and opens a
+pull request adding it to `Lists/list_community_reported.txt` (including the details you provided)
+for a maintainer to review.
 
 ### Code
 
