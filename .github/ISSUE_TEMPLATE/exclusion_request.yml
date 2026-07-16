@@ -1,0 +1,36 @@
+name: Exclusion request
+description: Ask for a domain to be excluded from the merged list because it's a false positive.
+title: "[Exclusion]: "
+labels:
+  - exclusion-request
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this form to request that a single domain be excluded from `Lists/all.txt`, for example
+        because it's blocking something you rely on and isn't actually ads/tracking/malware.
+
+        A workflow will automatically check for duplicates, look up the domain's reputation, and
+        open a pull request for a maintainer to review — no need to edit any files yourself.
+  - type: input
+    id: domain
+    attributes:
+      label: Domain or URL to exclude
+      description: A single domain (e.g. `example.com`). If you paste a full URL, only the domain part is used.
+      placeholder: example.com
+    validations:
+      required: true
+  - type: textarea
+    id: reason
+    attributes:
+      label: Why should this be excluded?
+      description: What is it blocking that shouldn't be blocked? Include a link to the affected service/page if you can.
+    validations:
+      required: true
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checks
+      options:
+        - label: I searched existing issues and this domain hasn't already been requested.
+          required: true
