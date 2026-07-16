@@ -1,0 +1,290 @@
+name: New List Source
+
+on:
+  issues:
+    types: [opened]
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+jobs:
+  process:
+    # GitHub issue forms silently drop the labels: field if that label doesn't already exist in
+    # the repo (it is not auto-created), so also match on the title prefix the form always sets.
+    if: contains(github.event.issue.labels.*.name, 'new-list-source') || startsWith(github.event.issue.title, '[New List]:')
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - uses: actions/checkout@v4
+
+      # Untrusted issue content is passed through an env var rather than interpolated directly
+      # into the script, and nothing derived from it is used for anything beyond display text
+      # until it has passed strict validation below.
+      - name: Extract and validate fields
+        id: extract
+        env:
+          ISSUE_BODY: ${{ github.event.issue.body }}
+        run: |
+          function Get-FormField {
+              param([string]$Body, [string]$Label)
+              $escaped = [regex]::Escape($Label)
+              if ($Body -match "(?ms)###\s*$escaped\s*\r?\n+(?<value>.+?)(\r?\n){2,}###") {
+                  return $matches['value'].Trim()
+              } elseif ($Body -match "(?ms)###\s*$escaped\s*\r?\n+(?<value>.+)$") {
+                  return $matches['value'].Trim()
+              }
+              return ""
+          }
+
+          $name = (Get-FormField -Body $env:ISSUE_BODY -Label "Short name").ToLowerInvariant()
+          $url = Get-FormField -Body $env:ISSUE_BODY -Label "Raw list URL"
+          $format = Get-FormField -Body $env:ISSUE_BODY -Label "List format"
+
+          $errors = [System.Collections.Generic.List[string]]::new()
+
+          if ($name -notmatch '^[a-z0-9]([a-z0-9-]{0,38}[a-z0-9])?$') {
+              $errors.Add("Short name isn't a valid slug (lowercase letters, digits, hyphens only).")
+          }
+
+          $validUrl = $false
+          try {
+              if ([Uri]::IsWellFormedUriString($url, [UriKind]::Absolute)) {
+                  $uri = [Uri]$url
+                  $isPrivateHost = $uri.Host -match '^(localhost|127(\.\d{1,3}){3}|10(\.\d{1,3}){3}|172\.(1[6-9]|2\d|3[01])(\.\d{1,3}){2}|192\.168(\.\d{1,3}){2}|169\.254(\.\d{1,3}){2}|0\.0\.0\.0|::1)$'
+                  if ($uri.Scheme -eq 'https' -and -not $isPrivateHost) {
+                      $validUrl = $true
+                  } elseif ($isPrivateHost) {
+                      $errors.Add("The URL's host looks like a private/internal address, which isn't allowed.")
+                  } else {
+                      $errors.Add("The URL must use https://.")
+                  }
+              } else {
+                  $errors.Add("The URL isn't a well-formed absolute URL.")
+              }
+          } catch {
+              $errors.Add("Couldn't parse the URL.")
+          }
+
+          $validFormats = @(
+              'Hosts (e.g. "0.0.0.0 example.com")',
+              'Domain only (one domain per line)',
+              'Adblock Plus (e.g. "||example.com^")'
+          )
+          if ($validFormats -notcontains $format) {
+              $errors.Add("Unrecognized list format selection.")
+          }
+
+          if ($errors.Count -gt 0) {
+              "valid=false" >> $env:GITHUB_OUTPUT
+              "errors=$($errors -join ' | ')" >> $env:GITHUB_OUTPUT
+          } else {
+              "valid=true" >> $env:GITHUB_OUTPUT
+              "name=$name" >> $env:GITHUB_OUTPUT
+              "url=$url" >> $env:GITHUB_OUTPUT
+              "format=$format" >> $env:GITHUB_OUTPUT
+          }
+
+      - name: Comment on invalid submission
+        if: steps.extract.outputs.valid != 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE: ${{ github.event.issue.number }}
+          ERRORS: ${{ steps.extract.outputs.errors }}
+        run: |
+          gh issue comment "$env:ISSUE" --body "I couldn't validate this submission:`n`n- $($env:ERRORS -replace ' \| ', "`n- ")"
+
+      - name: Check if source name already exists
+        id: dup
+        if: steps.extract.outputs.valid == 'true'
+        env:
+          NAME: ${{ steps.extract.outputs.name }}
+        run: |
+          if (Test-Path "./Urls/$env:NAME.ps1") {
+              "duplicate=true" >> $env:GITHUB_OUTPUT
+          } else {
+              "duplicate=false" >> $env:GITHUB_OUTPUT
+          }
+
+      - name: Comment and close if name already used
+        if: steps.extract.outputs.valid == 'true' && steps.dup.outputs.duplicate == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE: ${{ github.event.issue.number }}
+          NAME: ${{ steps.extract.outputs.name }}
+        run: |
+          gh issue comment "$env:ISSUE" --body "Urls/$env:NAME.ps1 already exists. Please pick a different short name, or check whether this source is already covered."
+          gh issue close "$env:ISSUE" --reason "not planned"
+
+      - name: Download and analyze candidate list
+        id: analyze
+        if: steps.extract.outputs.valid == 'true' && steps.dup.outputs.duplicate == 'false'
+        env:
+          URL: ${{ steps.extract.outputs.url }}
+          FORMAT: ${{ steps.extract.outputs.format }}
+        run: |
+          $candidatePath = Join-Path ([System.IO.Path]::GetTempPath()) "candidate.txt"
+
+          try {
+              Invoke-WebRequest -Uri $env:URL -OutFile $candidatePath -TimeoutSec 30 -MaximumRedirection 5 -ErrorAction Stop
+          } catch {
+              "success=false" >> $env:GITHUB_OUTPUT
+              $msg = $_.Exception.Message -replace '\r?\n', ' '
+              "error=Couldn't download the URL: $msg" >> $env:GITHUB_OUTPUT
+              exit 0
+          }
+
+          $sizeBytes = (Get-Item $candidatePath).Length
+          if ($sizeBytes -gt 100MB) {
+              "success=false" >> $env:GITHUB_OUTPUT
+              "error=The list is $([math]::Round($sizeBytes / 1MB, 1)) MB, too large to process automatically (limit 100 MB)." >> $env:GITHUB_OUTPUT
+              exit 0
+          }
+
+          $content = Get-Content -Path $candidatePath
+          if (-not $content -or $content.Count -eq 0) {
+              "success=false" >> $env:GITHUB_OUTPUT
+              "error=The downloaded list is empty." >> $env:GITHUB_OUTPUT
+              exit 0
+          }
+
+          switch ($env:FORMAT) {
+              'Hosts (e.g. "0.0.0.0 example.com")' {
+                  $domains = ($content | Where-Object { $_.Trim() -ne "" -and $_ -notmatch "^\s*#" }) -replace '^0\.0\.0\.0\s+', '' -replace '^127\.0\.0\.1\s+', ''
+              }
+              'Adblock Plus (e.g. "||example.com^")' {
+                  $domains = ($content | Where-Object { $_.Trim() -ne "" -and $_ -notmatch "^\s*[!#]" }).replace('|', '').replace('^', '')
+              }
+              default {
+                  $domains = $content | Where-Object { $_.Trim() -ne "" -and $_ -notmatch "^\s*#" }
+              }
+          }
+
+          $domains = @($domains | ForEach-Object { $_.Trim().ToLowerInvariant() } | Where-Object { $_ -ne "" } | Sort-Object -Unique)
+
+          if ($domains.Count -lt 3) {
+              "success=false" >> $env:GITHUB_OUTPUT
+              "error=Only $($domains.Count) domain(s) could be extracted - the selected format probably doesn't match the file." >> $env:GITHUB_OUTPUT
+              exit 0
+          }
+
+          $existing = [System.Collections.Generic.HashSet[string]]::new([string[]]@(Get-Content ./Lists/all.txt -ErrorAction SilentlyContinue))
+          $newDomains = @($domains | Where-Object { -not $existing.Contains($_) })
+          $newCount = $newDomains.Count
+          $overlapPct = [math]::Round((($domains.Count - $newCount) / $domains.Count) * 100, 1)
+          $sample = ($newDomains | Select-Object -First 10) -join ', '
+          if ([string]::IsNullOrEmpty($sample)) { $sample = "(none)" }
+
+          "success=true" >> $env:GITHUB_OUTPUT
+          "total=$($domains.Count)" >> $env:GITHUB_OUTPUT
+          "new=$newCount" >> $env:GITHUB_OUTPUT
+          "overlap=$overlapPct" >> $env:GITHUB_OUTPUT
+          "sample=$sample" >> $env:GITHUB_OUTPUT
+
+      - name: Comment on download/parse failure
+        if: steps.extract.outputs.valid == 'true' && steps.dup.outputs.duplicate == 'false' && steps.analyze.outputs.success == 'false'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE: ${{ github.event.issue.number }}
+          ERROR: ${{ steps.analyze.outputs.error }}
+        run: |
+          gh issue comment "$env:ISSUE" --body "I couldn't process this list: $env:ERROR"
+
+      - name: Comment with comparison results
+        if: steps.extract.outputs.valid == 'true' && steps.dup.outputs.duplicate == 'false' && steps.analyze.outputs.success == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE: ${{ github.event.issue.number }}
+          TOTAL: ${{ steps.analyze.outputs.total }}
+          NEW: ${{ steps.analyze.outputs.new }}
+          OVERLAP: ${{ steps.analyze.outputs.overlap }}
+          SAMPLE: ${{ steps.analyze.outputs.sample }}
+        run: |
+          $body = 'Analyzed the list: **' + $env:TOTAL + '** domains found, **' + $env:NEW + '** not already covered (' + $env:OVERLAP + '% overlap with the current merged list).' + "`n`n" + 'Sample of new domains: ' + $env:SAMPLE + "`n`n"
+          if ([int]$env:NEW -gt 0) {
+              $body += 'Opening a pull request to add this as a new source for review.'
+          } else {
+              $body += "This list doesn't add any coverage beyond what's already merged, so I'm not opening a pull request automatically - a maintainer can still add it manually if there's another reason to (e.g. redundancy/failover)."
+          }
+          gh issue comment "$env:ISSUE" --body $body
+
+      - name: Create branch, add source and open pull request
+        if: steps.extract.outputs.valid == 'true' && steps.dup.outputs.duplicate == 'false' && steps.analyze.outputs.success == 'true' && steps.analyze.outputs.new != '0'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE_BODY: ${{ github.event.issue.body }}
+          ISSUE: ${{ github.event.issue.number }}
+          NAME: ${{ steps.extract.outputs.name }}
+          URL: ${{ steps.extract.outputs.url }}
+          FORMAT: ${{ steps.extract.outputs.format }}
+          TOTAL: ${{ steps.analyze.outputs.total }}
+          NEW: ${{ steps.analyze.outputs.new }}
+          OVERLAP: ${{ steps.analyze.outputs.overlap }}
+        run: |
+          function Get-FormField {
+              param([string]$Body, [string]$Label)
+              $escaped = [regex]::Escape($Label)
+              if ($Body -match "(?ms)###\s*$escaped\s*\r?\n+(?<value>.+?)(\r?\n){2,}###") {
+                  return $matches['value'].Trim()
+              } elseif ($Body -match "(?ms)###\s*$escaped\s*\r?\n+(?<value>.+)$") {
+                  return $matches['value'].Trim()
+              }
+              return ""
+          }
+
+          $description = Get-FormField -Body $env:ISSUE_BODY -Label "Why should this be added?"
+          if ([string]::IsNullOrWhiteSpace($description) -or $description -match '^_No response_$') { $description = "_none provided_" }
+          $license = Get-FormField -Body $env:ISSUE_BODY -Label "License / attribution requirements"
+          if ([string]::IsNullOrWhiteSpace($license) -or $license -match '^_No response_$') { $license = "_none provided_" }
+
+          $templateFile = switch ($env:FORMAT) {
+              'Hosts (e.g. "0.0.0.0 example.com")' { './.github/list-source-templates/hosts.ps1.tmpl' }
+              'Adblock Plus (e.g. "||example.com^")' { './.github/list-source-templates/adblock.ps1.tmpl' }
+              default { './.github/list-source-templates/domain.ps1.tmpl' }
+          }
+
+          # Substitute NAME before URL: NAME is a strict slug that can't contain the URL token,
+          # so this order can't let URL content be re-substituted by a later replace pass.
+          $escapedUrl = $env:URL -replace "'", "''"
+          $scriptContent = (Get-Content -Path $templateFile -Raw).Replace('__NAME__', $env:NAME).Replace('__URL__', $escapedUrl)
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          $branch = "new-list/$env:NAME-issue-$env:ISSUE"
+          git checkout -b $branch
+
+          Set-Content -Path "./Urls/$env:NAME.ps1" -Value $scriptContent -NoNewline
+
+          $readmeLines = @(Get-Content -Path ./README.md)
+          $headingMatch = $readmeLines | Select-String -Pattern '^## Current lists imported$' | Select-Object -First 1
+          $newBullet = '- [' + $env:NAME + '](' + $env:URL + ')'
+          if ($headingMatch) {
+              $idx = $headingMatch.LineNumber - 1
+              $newLines = $readmeLines[0..$idx] + $newBullet
+              if ($idx + 1 -le $readmeLines.Count - 1) {
+                  $newLines += $readmeLines[($idx + 1)..($readmeLines.Count - 1)]
+              }
+              Set-Content -Path ./README.md -Value $newLines
+          } else {
+              Add-Content -Path ./README.md -Value ("`n" + $newBullet)
+          }
+
+          git add "./Urls/$env:NAME.ps1" ./README.md
+          git commit -m "Add $env:NAME as a new list source (#$env:ISSUE)"
+          git push -u origin $branch
+
+          $prBody = 'Closes #' + $env:ISSUE + "`n`n" +
+              'Proposed via the new-list-source issue form.' + "`n`n" +
+              '**Comparison against the current merged list:** ' + $env:TOTAL + ' domains found, ' + $env:NEW + ' not already covered (' + $env:OVERLAP + '% overlap).' + "`n`n" +
+              '**Why this list:**' + "`n" + $description + "`n`n" +
+              '**License / attribution:**' + "`n" + $license + "`n`n" +
+              'This adds `Urls/' + $env:NAME + '.ps1` (generated from a template, not manually reviewed) and a README entry. ' +
+              'Please check the source URL, its license/terms, and the generated script before merging - this is never auto-merged.'
+          Set-Content -Path pr-body.md -Value $prBody
+          gh pr create --title "Add $env:NAME as a new list source" --body-file pr-body.md --base main --head $branch
+          # Best-effort: don't fail PR creation just because the label doesn't exist (yet) in this repo.
+          gh pr edit $branch --add-label new-list-source 2>$null

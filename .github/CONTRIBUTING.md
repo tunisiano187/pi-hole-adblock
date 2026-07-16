@@ -4,7 +4,8 @@
 2. [How To Report Bugs](#how-to-report-bugs)
 3. [Requesting an Exclusion](#requesting-an-exclusion)
 4. [Reporting a Malicious URL](#reporting-a-malicious-url)
-5. [Tips For Submitting Code](#tips-for-submitting-code)
+5. [Proposing a New List Source](#proposing-a-new-list-source)
+6. [Tips For Submitting Code](#tips-for-submitting-code)
 
 ## Getting Involved
 
@@ -64,6 +65,17 @@ issue with the domain, where you encountered it, and any supporting evidence.
 A workflow automatically checks whether it's already blocked, looks up its reputation, and opens a
 pull request adding it to `Lists/list_community_reported.txt` (including the details you provided)
 for a maintainer to review.
+
+## Proposing a New List Source
+
+Know a good blocklist that isn't imported yet? Open a
+[New list source](https://github.com/tunisiano187/pi-hole-adblock/issues/new?template=new_list_source.yml)
+issue with its raw URL and format.
+
+A workflow downloads it, checks how many domains it adds beyond what's already merged, and comments
+with the results. If it adds meaningful new coverage, it opens a pull request with the script and
+README entry needed to wire it in, for a maintainer to review — it never merges anything
+automatically.
 
 ### Code
 

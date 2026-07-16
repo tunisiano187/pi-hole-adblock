@@ -1,0 +1,65 @@
+name: New list source
+description: Propose a new blocklist to merge into this project.
+title: "[New List]: "
+labels:
+  - new-list-source
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this form to propose a new source list to merge into `Lists/all.txt`.
+
+        A workflow will download the list, check its format, compare it against the current
+        merged list, and comment with the results. If it adds meaningful new coverage, it will
+        also open a pull request with the files needed to wire it in - for a maintainer to
+        review. It never merges anything automatically.
+  - type: input
+    id: name
+    attributes:
+      label: Short name
+      description: Lowercase letters, digits and hyphens only (used for the file name), e.g. `oisd-small`.
+      placeholder: oisd-small
+    validations:
+      required: true
+  - type: input
+    id: url
+    attributes:
+      label: Raw list URL
+      description: Direct https link to the plaintext list itself (not a webpage or a repo page).
+      placeholder: https://example.com/list.txt
+    validations:
+      required: true
+  - type: dropdown
+    id: format
+    attributes:
+      label: List format
+      description: How are entries written in the file?
+      options:
+        - 'Hosts (e.g. "0.0.0.0 example.com")'
+        - 'Domain only (one domain per line)'
+        - 'Adblock Plus (e.g. "||example.com^")'
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: Why should this be added?
+      description: What does this list cover? Link to its homepage/repo if it has one.
+    validations:
+      required: true
+  - type: textarea
+    id: license
+    attributes:
+      label: License / attribution requirements
+      description: Any license or attribution terms this list requires, if known.
+    validations:
+      required: false
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checks
+      options:
+        - label: The URL points directly to a raw list file, not a webpage.
+          required: true
+        - label: I searched existing issues and the imported list sources and this one isn't already included.
+          required: true
