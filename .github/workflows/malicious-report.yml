@@ -11,7 +11,10 @@ permissions:
 
 jobs:
   process:
-    if: contains(github.event.issue.labels.*.name, 'malicious-report')
+    # GitHub issue forms silently drop the `labels:` field if that label
+    # doesn't already exist in the repo (it is not auto-created), so also
+    # match on the title prefix the form always sets as a fallback.
+    if: contains(github.event.issue.labels.*.name, 'malicious-report') || startsWith(github.event.issue.title, '[Malicious]:')
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -166,4 +169,6 @@ jobs:
           Please review before merging - this adds $env:DOMAIN to the blocklist for everyone using this project's merged list.
           "@
           Set-Content -Path pr-body.md -Value $prBody
-          gh pr create --title "Block $env:DOMAIN" --body-file pr-body.md --base main --head $branch --label malicious-report
+          gh pr create --title "Block $env:DOMAIN" --body-file pr-body.md --base main --head $branch
+          # Best-effort: don't fail PR creation just because the label doesn't exist (yet) in this repo.
+          gh pr edit $branch --add-label malicious-report 2>$null
