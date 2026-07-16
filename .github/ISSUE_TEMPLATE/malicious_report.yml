@@ -1,0 +1,42 @@
+name: Malicious URL report
+description: Report a domain serving malware, phishing, or scams that isn't blocked yet.
+title: "[Malicious]: "
+labels:
+  - malicious-report
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this form to report a single malicious domain so it can be added to the blocklist.
+
+        A workflow will automatically check whether it's already blocked, look up its reputation,
+        and open a pull request (including the details below) for a maintainer to review.
+  - type: input
+    id: domain
+    attributes:
+      label: Malicious domain or URL
+      description: A single domain (e.g. `evil-example.com`). If you paste a full URL, only the domain part is used.
+      placeholder: evil-example.com
+    validations:
+      required: true
+  - type: textarea
+    id: encountered
+    attributes:
+      label: Where/how did you encounter it?
+      description: E.g. a phishing email, a malicious ad, a scam site impersonating a brand...
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence
+      description: Links, screenshots, VirusTotal/urlscan.io reports, or anything else supporting this being malicious.
+    validations:
+      required: false
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checks
+      options:
+        - label: I searched existing issues and this domain hasn't already been reported.
+          required: true

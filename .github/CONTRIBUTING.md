@@ -2,7 +2,8 @@
 
 1. [Getting Involved](#getting-involved)
 2. [How To Report Bugs](#how-to-report-bugs)
-3. [Tips For Submitting Code](#tips-for-submitting-code)
+3. [Reporting a Malicious URL](#reporting-a-malicious-url)
+4. [Tips For Submitting Code](#tips-for-submitting-code)
 
 ## Getting Involved
 
@@ -42,6 +43,16 @@ Please follow these guidelines before reporting a bug:
 3. **Provide a means to reproduce the problem** Please provide as much details as possible, and of course the steps to reproduce the problem.
 
 4. If the above steps are OK and you are sure its a bug, issues are tracked in the [issue tracker](https://github.com/tunisiano187/pi-hole-adblock/issues).
+
+## Reporting a Malicious URL
+
+Found a domain serving malware, phishing, or a scam that isn't blocked yet? Open a
+[Malicious URL report](https://github.com/tunisiano187/pi-hole-adblock/issues/new?template=malicious_report.yml)
+issue with the domain, where you encountered it, and any supporting evidence.
+
+A workflow automatically checks whether it's already blocked, looks up its reputation, and opens a
+pull request adding it to `Lists/list_community_reported.txt` (including the details you provided)
+for a maintainer to review.
 
 ### Code
 
