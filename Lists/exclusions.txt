@@ -1,0 +1,4 @@
+# Domains listed here are removed from the final Lists/all.txt at merge
+# time, even if an upstream source list still blocks them.
+#
+# One domain per line. Lines starting with # are ignored.
