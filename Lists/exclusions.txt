@@ -2,3 +2,4 @@
 # time, even if an upstream source list still blocks them.
 #
 # One domain per line. Lines starting with # are ignored.
+technocite.be
