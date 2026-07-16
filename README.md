@@ -12,6 +12,7 @@ The exceptions will create their own lists to be able to choose if you want them
 ## Current lists imported
 - [HBlock](https://hblock.molinero.dev)
 - [KitsapCreator](https://github.com/KitsapCreator/pihole-blocklists)
+- [URLhaus](https://urlhaus.abuse.ch) (active malware-distribution domains)
 
 ## Usage
 
