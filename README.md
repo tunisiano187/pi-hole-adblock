@@ -12,3 +12,15 @@ The exceptions will create their own lists to be able to choose if you want them
 ## Current lists imported
 - [HBlock](https://hblock.molinero.dev)
 - [KitsapCreator](https://github.com/KitsapCreator/pihole-blocklists)
+
+## Usage
+
+Add the following URL as an adlist in your Pi-hole instance (`Group Management` > `Adlists`):
+
+```
+https://raw.githubusercontent.com/tunisiano187/pi-hole-adblock/main/Lists/all.txt
+```
+
+Then run `Tools` > `Update Gravity` (or `pihole -g` from the command line) to apply it.
+
+The individual source lists (before merging) are also available under [`Lists/`](./Lists) if you only want a subset.
