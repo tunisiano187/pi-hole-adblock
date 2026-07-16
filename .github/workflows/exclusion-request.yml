@@ -1,0 +1,147 @@
+name: Exclusion Request
+
+on:
+  issues:
+    types: [opened]
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+jobs:
+  process:
+    if: contains(github.event.issue.labels.*.name, 'exclusion-request')
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - uses: actions/checkout@v4
+
+      # Untrusted issue content is passed through an env var rather than
+      # interpolated directly into the script, and is never used until it
+      # has been reduced to a strict domain-only regex match below.
+      - name: Extract and validate domain
+        id: extract
+        env:
+          ISSUE_BODY: ${{ github.event.issue.body }}
+        run: |
+          $body = $env:ISSUE_BODY
+          $domain = $null
+
+          if ($body -match '(?ms)###\s*Domain or URL to exclude\s*\r?\n+(?<value>.+?)(\r?\n){2,}###') {
+              $domain = ($matches['value'] -split '\r?\n')[0].Trim()
+          } elseif ($body -match '(?ms)###\s*Domain or URL to exclude\s*\r?\n+(?<value>.+)$') {
+              $domain = ($matches['value'] -split '\r?\n')[0].Trim()
+          }
+
+          if ($domain) {
+              $domain = $domain -replace '^[a-zA-Z]+://', ''
+              $domain = ($domain -split '[/\s]')[0].ToLowerInvariant()
+          }
+
+          $isValid = [bool]$domain -and ($domain -match '^[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?(\.[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?)+$')
+
+          if ($isValid) {
+              "valid=true" >> $env:GITHUB_OUTPUT
+              "domain=$domain" >> $env:GITHUB_OUTPUT
+          } else {
+              "valid=false" >> $env:GITHUB_OUTPUT
+          }
+
+      - name: Comment on unparseable domain
+        if: steps.extract.outputs.valid != 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE: ${{ github.event.issue.number }}
+        run: |
+          gh issue comment "$env:ISSUE" --body "I couldn't find a valid domain in this issue. Please edit it so the *Domain or URL to exclude* field contains a single domain, e.g. example.com."
+
+      - name: Check for duplicate
+        id: dup
+        if: steps.extract.outputs.valid == 'true'
+        env:
+          DOMAIN: ${{ steps.extract.outputs.domain }}
+        run: |
+          $existing = @()
+          if (Test-Path ./Lists/exclusions.txt) {
+              $existing = Get-Content ./Lists/exclusions.txt | ForEach-Object { $_.Trim().ToLowerInvariant() }
+          }
+          if ($existing -contains $env:DOMAIN) {
+              "duplicate=true" >> $env:GITHUB_OUTPUT
+          } else {
+              "duplicate=false" >> $env:GITHUB_OUTPUT
+          }
+
+      - name: Comment and close on duplicate
+        if: steps.extract.outputs.valid == 'true' && steps.dup.outputs.duplicate == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE: ${{ github.event.issue.number }}
+          DOMAIN: ${{ steps.extract.outputs.domain }}
+        run: |
+          gh issue comment "$env:ISSUE" --body "$env:DOMAIN is already in the exclusion list. Closing as a duplicate."
+          gh issue close "$env:ISSUE" --reason "not planned"
+
+      - name: Query VirusTotal
+        id: vt
+        if: steps.extract.outputs.valid == 'true' && steps.dup.outputs.duplicate == 'false'
+        env:
+          VT_API_KEY: ${{ secrets.VT_API_KEY }}
+          DOMAIN: ${{ steps.extract.outputs.domain }}
+        run: |
+          if ([string]::IsNullOrEmpty($env:VT_API_KEY)) {
+              "summary=VirusTotal check skipped: no VT_API_KEY secret configured on this repository." >> $env:GITHUB_OUTPUT
+              exit 0
+          }
+
+          try {
+              $resp = Invoke-RestMethod -Uri "https://www.virustotal.com/api/v3/domains/$env:DOMAIN" -Headers @{ "x-apikey" = $env:VT_API_KEY } -ErrorAction Stop
+              $s = $resp.data.attributes.last_analysis_stats
+              $total = $s.malicious + $s.suspicious + $s.harmless + $s.undetected + $s.timeout
+              $summary = "VirusTotal: $($s.malicious) malicious / $($s.suspicious) suspicious / $($s.harmless) harmless / $($s.undetected) undetected (of $total engines) - full report: https://www.virustotal.com/gui/domain/$env:DOMAIN"
+          } catch {
+              $summary = "VirusTotal check failed: $($_.Exception.Message)"
+          }
+
+          $summary = $summary -replace '\r?\n', ' '
+          "summary=$summary" >> $env:GITHUB_OUTPUT
+
+      - name: Create branch and commit
+        id: commit
+        if: steps.extract.outputs.valid == 'true' && steps.dup.outputs.duplicate == 'false'
+        env:
+          DOMAIN: ${{ steps.extract.outputs.domain }}
+          ISSUE: ${{ github.event.issue.number }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          $branch = "exclusion/$env:DOMAIN-issue-$env:ISSUE"
+          git checkout -b $branch
+
+          if (-not (Test-Path ./Lists/exclusions.txt)) {
+              New-Item -ItemType File -Path ./Lists/exclusions.txt | Out-Null
+          }
+          Add-Content -Path ./Lists/exclusions.txt -Value $env:DOMAIN
+          $unique = Get-Content ./Lists/exclusions.txt | Where-Object { $_.Trim() -ne "" } | Sort-Object -Unique
+          Set-Content -Path ./Lists/exclusions.txt -Value $unique
+
+          git add ./Lists/exclusions.txt
+          git commit -m "Add $env:DOMAIN to exclusions (#$env:ISSUE)"
+          git push -u origin $branch
+
+          "branch=$branch" >> $env:GITHUB_OUTPUT
+
+      - name: Open pull request
+        if: steps.extract.outputs.valid == 'true' && steps.dup.outputs.duplicate == 'false'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DOMAIN: ${{ steps.extract.outputs.domain }}
+          ISSUE: ${{ github.event.issue.number }}
+          BRANCH: ${{ steps.commit.outputs.branch }}
+          VT_SUMMARY: ${{ steps.vt.outputs.summary }}
+        run: |
+          $prBody = "Closes #$env:ISSUE`n`nRequested via the exclusion-request issue form.`n`n$env:VT_SUMMARY`n`nPlease review before merging - this removes $env:DOMAIN from the blocklist for everyone using this project's merged list."
+          gh pr create --title "Exclude $env:DOMAIN" --body $prBody --base main --head $env:BRANCH --label exclusion-request
