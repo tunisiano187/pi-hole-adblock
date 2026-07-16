@@ -17,11 +17,12 @@ foreach ($file in $toadd) {
 }
 git commit -m "[skip ci] update lists"
 
-$exclusions = [System.Collections.Generic.HashSet[string]]::new([string[]](
+$exclusionLines = @(
     Get-Content ./Lists/exclusions.txt -ErrorAction SilentlyContinue |
         ForEach-Object { $_.Trim().ToLowerInvariant() } |
         Where-Object { $_ -ne "" -and -not $_.StartsWith("#") }
-))
+)
+$exclusions = [System.Collections.Generic.HashSet[string]]::new([string[]]$exclusionLines)
 
 get-childitem -path "." -include list*.txt -Recurse | ForEach-Object {Get-Content $_; ""} | Where-Object { $_.Trim() -ne "" } | ForEach-Object { $_.ToLowerInvariant() } | Where-Object { -not $exclusions.Contains($_) } | Sort-Object -Unique | out-file ./Lists/all.txt
 git add ./Lists/all.txt
