@@ -1693,10 +1693,12 @@
 127.0.0.1	adodebtsole.xyz
 127.0.0.1	afonja.nfy.fyi
 127.0.0.1	aftelecom.com.br
+127.0.0.1	aidlifempowerment.com
 127.0.0.1	airtickts.com
 127.0.0.1	airyvineic.help
 127.0.0.1	alarmline.com.br
 127.0.0.1	alineeleuterio.com.br
+127.0.0.1	allendaltonproduction.com
 127.0.0.1	allendostmen.com
 127.0.0.1	alsofillsoar.xyz
 127.0.0.1	alternativas.ru
@@ -1716,7 +1718,6 @@
 127.0.0.1	audicontadores.com
 127.0.0.1	awarenessexhibition.com
 127.0.0.1	babyglee-all.xyz
-127.0.0.1	backupso.com
 127.0.0.1	ballweldleer.xyz
 127.0.0.1	bandrice-pity.xyz
 127.0.0.1	bandsway-arch.xyz
@@ -1757,7 +1758,6 @@
 127.0.0.1	cat.xiaoshabi.nl
 127.0.0.1	catbaparadisehotel.com.vn
 127.0.0.1	cdaonline.com.ar
-127.0.0.1	cdn.file6.goodid.com
 127.0.0.1	cehamilton.com
 127.0.0.1	celebratingseniors.net
 127.0.0.1	char-avid-verb.xyz
@@ -1844,6 +1844,7 @@
 127.0.0.1	electri.billregulator.com
 127.0.0.1	elisans.novayonetim.com
 127.0.0.1	embedone.com
+127.0.0.1	en.taichuan.com
 127.0.0.1	endpoint.project0.cc
 127.0.0.1	ends-fork-ores.xyz
 127.0.0.1	ends-pare-stow.xyz
@@ -1881,6 +1882,7 @@
 127.0.0.1	gain-daze-kept.xyz
 127.0.0.1	galerisenimutiara.com
 127.0.0.1	gangteem-beam.xyz
+127.0.0.1	gboutros.howto.rocks
 127.0.0.1	genddos.st
 127.0.0.1	gestionycobranzas.com
 127.0.0.1	getrichcurl.xyz
@@ -1920,11 +1922,11 @@
 127.0.0.1	hoopramplawn.xyz
 127.0.0.1	hseda.com
 127.0.0.1	hullmall-cool.xyz
-127.0.0.1	hypercorevector9.lol
 127.0.0.1	icoffeecloud.com
 127.0.0.1	iconropeknob.xyz
 127.0.0.1	idea-nickdoor.xyz
 127.0.0.1	igra123.com
+127.0.0.1	ijexgroup.com.br
 127.0.0.1	infocrabcob.xyz
 127.0.0.1	ircftp.net
 127.0.0.1	isiore.com.co
@@ -1978,6 +1980,8 @@
 127.0.0.1	luizmatoso.com.br
 127.0.0.1	lull-islebrew.xyz
 127.0.0.1	m.jkoa.co.kr
+127.0.0.1	m.meta-dm.com
+127.0.0.1	maidforyou1985.com
 127.0.0.1	mailsonbelle.com.br
 127.0.0.1	male-martloss.xyz
 127.0.0.1	manyhaste-seat.xyz
@@ -2074,6 +2078,7 @@
 127.0.0.1	records.dennisign.se
 127.0.0.1	redlk.com
 127.0.0.1	refaccionesalma.com.mx
+127.0.0.1	reifenquick.de
 127.0.0.1	reutilizemais.co.mz
 127.0.0.1	richoverfold.xyz
 127.0.0.1	rideloreomit.xyz
@@ -2159,7 +2164,6 @@
 127.0.0.1	svirtual.sanviatorperu.edu.pe
 127.0.0.1	swaycladstop.xyz
 127.0.0.1	swayoralnear.xyz
-127.0.0.1	swiftfusion.tech
 127.0.0.1	sydneyaffordablecremations.com.au
 127.0.0.1	talentrecruitments.com
 127.0.0.1	tame-damp-nail.xyz
@@ -2199,7 +2203,6 @@
 127.0.0.1	tuck-hoaxwade.xyz
 127.0.0.1	tue-orange-01.cfd
 127.0.0.1	turniron-mound.xyz
-127.0.0.1	twu-hwt.org
 127.0.0.1	ugly-arcs-lyre.xyz
 127.0.0.1	ugly-oursold.xyz
 127.0.0.1	uglyshop-mare.xyz
