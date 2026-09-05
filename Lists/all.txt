@@ -1631,11 +1631,9 @@
 127.0.0.1	1717.1000uc.com
 127.0.0.1	198348.gl
 127.0.0.1	1h.vuregyy1.ru
-127.0.0.1	1h.xeteloi4.ru
 127.0.0.1	3.zhzy999.net
 127.0.0.1	3.zhzy999.net3.zhzy999.net
 127.0.0.1	31.128.173.853.zhzy999.net31.128.173.853.zhzy999.net
-127.0.0.1	3brosstore.com
 127.0.0.1	999.34c9f78b4ef541baac4a6e84d4f832a7.lol
 127.0.0.1	abonent-app.ru
 127.0.0.1	acc.jiangsujiaxue.com
@@ -1652,7 +1650,6 @@
 127.0.0.1	allendostmen.com
 127.0.0.1	alphapicaficagency.com
 127.0.0.1	alphasaling.site
-127.0.0.1	altamoorgoods.com
 127.0.0.1	alternativas.ru
 127.0.0.1	app.appzcvb.com
 127.0.0.1	archivoscrosoft.com
@@ -1665,18 +1662,15 @@
 127.0.0.1	backupso.com
 127.0.0.1	balanced-red-emhnkdfj-dp7g2kvqxx8n.edgeone.dev
 127.0.0.1	beak.in
-127.0.0.1	benotrobot.online
 127.0.0.1	bito.com.pk
 127.0.0.1	blankeyeo.com
 127.0.0.1	blessdayservices.org
-127.0.0.1	blit.co.za
 127.0.0.1	blogs.sokun.jp
 127.0.0.1	bmdcompany.com
 127.0.0.1	bnet-api.playm8ru.win
 127.0.0.1	bnet.playm8ru.win
 127.0.0.1	book.rollingvideogames.com
 127.0.0.1	bridgeroad.maverickpreviews.com
-127.0.0.1	brightroseax.blog
 127.0.0.1	brightworks.cz
 127.0.0.1	bserail.com
 127.0.0.1	bvaco.com
@@ -1686,6 +1680,7 @@
 127.0.0.1	cat.xiaojiji.nl
 127.0.0.1	cat.xiaoshabi.nl
 127.0.0.1	catbaparadisehotel.com.vn
+127.0.0.1	ccoffice.site
 127.0.0.1	cdaonline.com.ar
 127.0.0.1	celebratingseniors.net
 127.0.0.1	chat-server.maverickpreviews.com
@@ -1695,6 +1690,7 @@
 127.0.0.1	chuguadventures.co.tz
 127.0.0.1	cl.ssouy.com
 127.0.0.1	cloud.pearlpeel.com
+127.0.0.1	cloudeliveryenterprise.com
 127.0.0.1	clubdetiroelpicarcho.com
 127.0.0.1	cn.unionlever.com
 127.0.0.1	co-emas.com
@@ -1718,6 +1714,7 @@
 127.0.0.1	deagroup-ks.com
 127.0.0.1	deliverymailreport.co.za
 127.0.0.1	delp-heizungsbau.de
+127.0.0.1	deoriatimes.com
 127.0.0.1	dexios.co.za
 127.0.0.1	dezcom.com
 127.0.0.1	dfd.zhzy999.net
@@ -1731,6 +1728,8 @@
 127.0.0.1	down.54nb.com
 127.0.0.1	down.fwqlt.com
 127.0.0.1	down.pcclear.com
+127.0.0.1	down.qqfarmer.com.cn
+127.0.0.1	download.caihong.com
 127.0.0.1	download.doumaibiji.cn
 127.0.0.1	download.haozip.com
 127.0.0.1	download.kaobeitu.com
@@ -1744,7 +1743,6 @@
 127.0.0.1	electri.billregulator.com
 127.0.0.1	elisans.novayonetim.com
 127.0.0.1	embedone.com
-127.0.0.1	emeraldstonegc.blog
 127.0.0.1	en.taichuan.com
 127.0.0.1	endpoint.project0.cc
 127.0.0.1	epanpano.com
@@ -1753,6 +1751,8 @@
 127.0.0.1	fd.v2downf.shop
 127.0.0.1	fern-plume.com
 127.0.0.1	file.blackint3.com
+127.0.0.1	file.uhsea.com
+127.0.0.1	filecon.sbs
 127.0.0.1	filerit.com
 127.0.0.1	first-security-verden.de
 127.0.0.1	flyingmutts.com
@@ -1760,11 +1760,11 @@
 127.0.0.1	fukt.link
 127.0.0.1	fullstacknir.com
 127.0.0.1	funneldiy.com
+127.0.0.1	fz.tiansys.cn
 127.0.0.1	gaiadeqi.com
 127.0.0.1	galerisenimutiara.com
 127.0.0.1	geoxsecurity.ro
 127.0.0.1	gestionycobranzas.com
-127.0.0.1	gestroom.it
 127.0.0.1	globalbank.us
 127.0.0.1	grantexx.com
 127.0.0.1	grupomcperu.com
@@ -1782,7 +1782,6 @@
 127.0.0.1	igra123.com
 127.0.0.1	ikincielesyaciankara.com.tr
 127.0.0.1	impectorinternational.com
-127.0.0.1	indusenterprises.co
 127.0.0.1	infocardphoto.info
 127.0.0.1	ircftp.net
 127.0.0.1	isiore.com.co
@@ -1792,6 +1791,7 @@
 127.0.0.1	jessespridecharters.com
 127.0.0.1	jlwz.cn
 127.0.0.1	joyeriatauro.com
+127.0.0.1	jswen.com
 127.0.0.1	kavacanada.ca
 127.0.0.1	kenwillzltd.com
 127.0.0.1	khavar.com
@@ -1801,14 +1801,15 @@
 127.0.0.1	konsor.ru
 127.0.0.1	landonirwin.com
 127.0.0.1	lawfirm.paperbirdtech.com
+127.0.0.1	lindnerelektroanlagen.de
 127.0.0.1	local-update.com
 127.0.0.1	lomejordesalamanca.es
 127.0.0.1	luizmatoso.com.br
 127.0.0.1	luminouspower.com.pk
+127.0.0.1	m.jkoa.co.kr
 127.0.0.1	m.meta-dm.com
 127.0.0.1	maidforyou1985.com
-127.0.0.1	mail.brightroseax.blog
-127.0.0.1	mail.emeraldstonegc.blog
+127.0.0.1	malupieng.com.br
 127.0.0.1	metrics.gocloudmaps.com
 127.0.0.1	miriamgualda.com.br
 127.0.0.1	mitreart.com
@@ -1825,7 +1826,6 @@
 127.0.0.1	ncxps.com
 127.0.0.1	node-slate.com
 127.0.0.1	noithaticon.vn
-127.0.0.1	northernvirginiaeyeassociates.com
 127.0.0.1	nusatoyota.co.id
 127.0.0.1	ny.lshdw.cc
 127.0.0.1	odinclient.dev
@@ -1836,6 +1836,7 @@
 127.0.0.1	outpost.co.ke
 127.0.0.1	p3.zbjimg.com
 127.0.0.1	palharesinformatica.com.br
+127.0.0.1	pay.aqiu6.com
 127.0.0.1	pcupd.com
 127.0.0.1	pedianow.org
 127.0.0.1	pfatrivandrum.org
@@ -1882,6 +1883,7 @@
 127.0.0.1	sec.xiaoshabi.nl
 127.0.0.1	seismophonic.com
 127.0.0.1	semencepourlavie.org
+127.0.0.1	seobandung.site
 127.0.0.1	separadordecc.com
 127.0.0.1	seputartuban.com
 127.0.0.1	sg123.net
@@ -1891,7 +1893,6 @@
 127.0.0.1	sk-comtel.com
 127.0.0.1	smartermail.host
 127.0.0.1	sochibeer.ru
-127.0.0.1	soft.110route.com
 127.0.0.1	solar-sanat.net
 127.0.0.1	spgint.com
 127.0.0.1	static.ilclock.com
@@ -1907,7 +1908,6 @@
 127.0.0.1	tanscarattorneys.co.tz
 127.0.0.1	tapestryoftruth.com
 127.0.0.1	tarkioweb.com
-127.0.0.1	taskerempresascol.co
 127.0.0.1	taunahi.st
 127.0.0.1	tecunonline.com
 127.0.0.1	tehnomag.rs
@@ -1925,6 +1925,7 @@
 127.0.0.1	toolshare.com.tr
 127.0.0.1	top8onlinegame.com
 127.0.0.1	topmark-tuitioncentre.co.uk
+127.0.0.1	tpp.om-stock.com
 127.0.0.1	tr.zhzy999.net
 127.0.0.1	transparenciacanaa.com.br
 127.0.0.1	trtmyanmar.com
@@ -1936,7 +1937,6 @@
 127.0.0.1	update.cg100iii.com
 127.0.0.1	us.wind0ws.net
 127.0.0.1	vcc-library.uk
-127.0.0.1	verification-process.com
 127.0.0.1	versaclean.com.br
 127.0.0.1	veryboys.com
 127.0.0.1	vgd.vg
@@ -1948,6 +1948,7 @@
 127.0.0.1	w.zhzy999.net
 127.0.0.1	website.mypetapp.co.za
 127.0.0.1	widexenmexico.com.mx
+127.0.0.1	wind.ntlsmartfull.com
 127.0.0.1	windomstatetheater.com
 127.0.0.1	wittenhorst.eu
 127.0.0.1	wordtax.ink
@@ -1965,7 +1966,6 @@
 127.0.0.1	www.cutting-edge.in
 127.0.0.1	www.drgenov.com
 127.0.0.1	www.first-security-verden.de
-127.0.0.1	www.gestroom.it
 127.0.0.1	www.hostingcloud.science
 127.0.0.1	www.hqsblog.com
 127.0.0.1	www.hseda.com
